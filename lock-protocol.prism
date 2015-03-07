@@ -33,15 +33,8 @@ module lock2
 
 endmodule
 
-module lock3
-
-    x3 : [0..9999] init 0;
-    c3 : clock;
-
-    [deliverReq13] x3=0 -> (x3'=111)&(c3'=0);
-    [sndGranted31] x3=111 & c3=0 -> (x3'=11);
-    [expire1] x3=11 -> (x3'=0);
-
+module lock3 = lock2 [x2 = x3, c2 = c3,
+                      deliverReq12 = deliverReq13, sndGranted21 = sndGranted31]
 endmodule
 
 module channel12
@@ -53,13 +46,9 @@ module channel12
 
 endmodule
 
-module channel13
-
-    c13 : [0..9] init 0;
-
-    [sndReq13] c13=0 -> 0.999:(c13'=3) + 0.001:(c13'=0);
-    [deliverReq13] c13=3 -> (c13'=0);
-
+module channel13 =
+    channel12 [c12 = c13,
+               sndReq12 = sndReq13, deliverReq12 = deliverReq13]
 endmodule
 
 module channel21
@@ -71,10 +60,7 @@ module channel21
 
 endmodule
 
-module channel31
-
-    c31 : [0..9] init 0;
-
-    [sndGranted31] c31=0 -> 0.999:(c31'=1) + 0.001:(c31'=0);
-    [deliverGranted31] c31=1 -> (c31'=0);
+module channel31 =
+    channel21 [c21 = c31,
+               sndGranted21 = sndGranted31, deliverGranted21 = deliverGranted31]
 endmodule
