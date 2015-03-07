@@ -1,45 +1,46 @@
 // Example 1
 // Two process mutual exclusion
 
-mdp
-
-global atom : bool init false;
+pta
 
 module lock1
 
     x1 : [0..9999] init 0;
+    c1 : clock;
 
-    [] atom=false & x1=0 -> (x1'=1232)&(atom'=true);
-    [sndReq12] atom=true & x1=1232 -> (x1'=2232);
-    [sndReq13] atom=true & x1=2232 -> (x1'=232)&(atom'=false);
+    [] x1=0 -> (x1'=1232)&(c1'=0);
+    [sndReq12] x1=1232 & c1=0-> (x1'=2232);
+    [sndReq13] x1=2232 & c1=0 -> (x1'=232);
 
-    [deliverGranted21] atom=false & x1=232 -> (x1'=233);
-    [deliverGranted31] atom=false & x1=232 -> (x1'=234);
+    [deliverGranted21] x1=232 -> (x1'=233);
+    [deliverGranted31] x1=232 -> (x1'=234);
 
-    [deliverGranted31] atom=false & x1=233 -> (x1'=235);
-    [deliverGranted21] atom=false & x1=234 -> (x1'=235);
+    [deliverGranted31] x1=233 -> (x1'=235);
+    [deliverGranted21] x1=234 -> (x1'=235);
 
-    [expire1] atom=false & x1=235 -> (x1'=0);
+    [expire1] x1=235 -> (x1'=0);
 
 endmodule
 
 module lock2
 
     x2 : [0..9999] init 0;
+    c2 : clock;
 
-    [deliverReq12] atom=false & x2=0 -> (x2'=111)&(atom'=true);
-    [sndGranted21] atom=true & x2=111 -> (x2'=11)&(atom'=false);
-    [expire1] atom=false & x2=11 -> (x2'=0);
+    [deliverReq12] x2=0 -> (x2'=111)&(c2'=0);
+    [sndGranted21] x2=111 & c2=0 -> (x2'=11);
+    [expire1] x2=11 -> (x2'=0);
 
 endmodule
 
 module lock3
 
     x3 : [0..9999] init 0;
+    c3 : clock;
 
-    [deliverReq13] atom=false & x3=0 -> (x3'=111)&(atom'=true);
-    [sndGranted31] atom=true & x3=111 -> (x3'=11)&(atom'=false);
-    [expire1] atom=false & x3=11 -> (x3'=0);
+    [deliverReq13] x3=0 -> (x3'=111)&(c3'=0);
+    [sndGranted31] x3=111 & c3=0 -> (x3'=11);
+    [expire1] x3=11 -> (x3'=0);
 
 endmodule
 
@@ -47,8 +48,8 @@ module channel12
 
     c12 : [0..9] init 0;
 
-    [sndReq12] atom=false & c12=0 -> 0.999:(c12'=2) + 0.001:(c12'=0);
-    [deliverReq12] atom=false & c12=2 -> (c12'=0);
+    [sndReq12] c12=0 -> 0.999:(c12'=2) + 0.001:(c12'=0);
+    [deliverReq12] c12=2 -> (c12'=0);
 
 endmodule
 
@@ -56,8 +57,8 @@ module channel13
 
     c13 : [0..9] init 0;
 
-    [sndReq13] atom=false & c13=0 -> 0.999:(c13'=3) + 0.001:(c13'=0);
-    [deliverReq13] atom=false & c13=3 -> (c13'=0);
+    [sndReq13] c13=0 -> 0.999:(c13'=3) + 0.001:(c13'=0);
+    [deliverReq13] c13=3 -> (c13'=0);
 
 endmodule
 
@@ -65,14 +66,15 @@ module channel21
 
     c21 : [0..9] init 0;
 
-    [sndGranted21] atom=false & c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
-    [deliverGranted21] atom=false & c21=1 -> (c21'=0);
+    [sndGranted21] c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
+    [deliverGranted21] c21=1 -> (c21'=0);
 
 endmodule
 
 module channel31
+
     c31 : [0..9] init 0;
 
-    [sndGranted31] atom=false & c31=0 -> 0.999:(c31'=1) + 0.001:(c31'=0);
-    [deliverGranted31] atom=false & c31=1 -> (c31'=0);
+    [sndGranted31] c31=0 -> 0.999:(c31'=1) + 0.001:(c31'=0);
+    [deliverGranted31] c31=1 -> (c31'=0);
 endmodule
