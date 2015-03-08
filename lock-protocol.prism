@@ -112,6 +112,9 @@ module channel21
     c21 : [0..9] init 0;
     [sndGranted21] c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
     [deliverGranted21] c21=1 -> (c21'=0);
+
+    [expire1] c21=1 -> (c21'=0);
+    [expire1] c21!=1 -> true;
 endmodule
 
 module channel31 =
@@ -121,5 +124,12 @@ endmodule
 
 module channel34 =
     channel21 [c21 = c34,
-               sndGranted21 = sndGranted34, deliverGranted21 = deliverGranted34]
+               sndGranted21 = sndGranted34, deliverGranted21 = deliverGranted34,
+               expire1 = expire4]
+endmodule
+
+module channel54 =
+    channel21 [c21 = c54,
+               sndGranted21 = sndGranted54, deliverGranted21 = deliverGranted54,
+               expire1 = expire4]
 endmodule
