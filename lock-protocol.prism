@@ -1,16 +1,26 @@
-// Example 1
-// Two process mutual exclusion
+//
+// The lock protocol
+// scenario A:
+//   1
+// 2   3
+// 
+// scenario B:
+//   1   4
+// 2   3   5
+//
 
-pta
+mdp
 
-module lock1
+module lock1active
 
     x1 : [0..9999] init 0;
-    c1 : clock;
+    f1 : [0..9] init 0;
+    b1 : [0..9] init 0;
+    m1 : [0..9] init 0;
 
-    [] x1=0 -> (x1'=1232)&(c1'=0);
-    [sndReq12] x1=1232 & c1=0-> (x1'=2232);
-    [sndReq13] x1=2232 & c1=0 -> (x1'=232);
+    [] x1=0 -> (x1'=1232);
+    [sndReq12] x1=1232 -> (x1'=2232);
+    [sndReq13] x1=2232 -> (x1'=232);
 
     [deliverGranted21] x1=232 -> (x1'=233);
     [deliverGranted31] x1=232 -> (x1'=234);
@@ -18,23 +28,31 @@ module lock1
     [deliverGranted31] x1=233 -> (x1'=235);
     [deliverGranted21] x1=234 -> (x1'=235);
 
-    [expire1] x1=235 -> (x1'=0);
+    [sndGranted12] x1=9999->true;
+    [sndGranted13] x1=9999->true;
+
+    [expire1] (x1=232 | x1=233 | x1=234 | x1=235) & x1!=1232 & x1!=2232
+        -> (x1'=0)&(f1'=0)&(b1'=0)&(m1'=0);
+
+    [expire2] x1=21 -> (x1'=0);
+    //[expire2] x1!=21 -> true;
 
 endmodule
 
-module lock2
+module lock2passive
 
     x2 : [0..9999] init 0;
-    c2 : clock;
 
-    [deliverReq12] x2=0 -> (x2'=111)&(c2'=0);
-    [sndGranted21] x2=111 & c2=0 -> (x2'=11);
+    [deliverReq12] x2=0 -> (x2'=111);
+    [sndGranted21] x2=111 -> (x2'=11);
+
     [expire1] x2=11 -> (x2'=0);
+    [expire1] x2!=11 & x2!=111 -> true;
 
 endmodule
 
-module lock3 = lock2 [x2 = x3, c2 = c3,
-                      deliverReq12 = deliverReq13, sndGranted21 = sndGranted31]
+module lock3passive = lock2passive [
+    x2 = x3, c2 = c3, deliverReq12 = deliverReq13, sndGranted21 = sndGranted31]
 endmodule
 
 module channel12
@@ -43,7 +61,6 @@ module channel12
 
     [sndReq12] c12=0 -> 0.999:(c12'=2) + 0.001:(c12'=0);
     [deliverReq12] c12=2 -> (c12'=0);
-
 endmodule
 
 module channel13 =
@@ -52,12 +69,9 @@ module channel13 =
 endmodule
 
 module channel21
-
     c21 : [0..9] init 0;
-
-    [sndGranted21] c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
-    [deliverGranted21] c21=1 -> (c21'=0);
-
+    [sndGranted12] c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
+    [deliverGranted12] c21=1 -> (c21'=0);
 endmodule
 
 module channel31 =
