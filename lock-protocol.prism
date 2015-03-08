@@ -18,7 +18,7 @@ module lock1active
     b1 : [0..9] init 0;
     m1 : [0..9] init 0;
 
-    [] x1=0 -> (x1'=1232);
+    [set1] x1=0 -> (x1'=1232);
     [sndReq12] x1=1232 -> (x1'=2232);
     [sndReq13] x1=2232 -> (x1'=232);
 
@@ -40,7 +40,7 @@ module lock1active
 endmodule
 
 module lock4active = lock1active [
-    x1 = x4, f1 = f4, b1 = b4, m1 = m4,
+    x1 = x4, f1 = f4, b1 = b4, m1 = m4, set1 = set4,
     sndReq12 = sndReq43, sndReq13 = sndReq45,
     deliverGranted21 = deliverGranted34, deliverGranted31 = deliverGranted54,
     sndGranted12 = sndGranted43, sndGranted13 = sndGranted45,
@@ -91,6 +91,9 @@ module channel12
 
     [sndReq12] c12=0 -> 0.999:(c12'=2) + 0.001:(c12'=0);
     [deliverReq12] c12=2 -> (c12'=0);
+
+    [expire1] c12=2 -> (c12'=0);
+    [expire1] c12!=2 -> true;
 endmodule
 
 module channel13 =
@@ -100,12 +103,14 @@ endmodule
 
 module channel43 =
     channel12 [c12 = c43,
-               sndReq12 = sndReq43, deliverReq12 = deliverReq43]
+               sndReq12 = sndReq43, deliverReq12 = deliverReq43,
+               expire1 = expire4]
 endmodule
 
 module channel45 =
     channel12 [c12 = c45,
-               sndReq12 = sndReq45, deliverReq12 = deliverReq45]
+               sndReq12 = sndReq45, deliverReq12 = deliverReq45,
+               expire1 = expire4]
 endmodule
 
 module channel21
@@ -132,4 +137,20 @@ module channel54 =
     channel21 [c21 = c54,
                sndGranted21 = sndGranted54, deliverGranted21 = deliverGranted54,
                expire1 = expire4]
+endmodule
+
+module timing
+
+    t : [0..9999] init 0;
+
+    [set1] t=0 -> (t'=1);
+    [set4] t=0 -> (t'=4);
+    [set1] t=4 -> (t'=41);
+    [set4] t=1 -> (t'=14);
+
+    [expire1] t=1 -> (t'=0);
+    [expire1] t=14 -> (t'=4);
+    [expire4] t=4 -> (t'=0);
+    [expire4] t=41 -> (t'=1);
+
 endmodule
