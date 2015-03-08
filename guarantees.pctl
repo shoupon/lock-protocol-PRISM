@@ -1,0 +1,15 @@
+label "lock1error" = !(x1=235 => (x2=11 & x3=11));
+label "lock4error" = !(x4=235 => (x3=41 & x5=11));
+
+label "lock1locked" = x1=235 & x2=11 & x3=11;
+label "lock4locked" = x4=235 & x3=41 & x5=11;
+
+Pmax=? [ F "lock1error" ]
+E[ F "lock1error" ]
+Pmax=? [ F "lock1locked" ]
+Pmin=? [ F "lock1locked" ]
+Pmax=? [ F "lock4error" ]
+E[ F "lock4error" ]
+Pmax=? [ F "lock4locked" ]
+Pmin=? [ F "lock4locked" ]
+E[F "deadlock"]
