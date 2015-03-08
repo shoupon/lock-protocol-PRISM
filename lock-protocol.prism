@@ -34,10 +34,20 @@ module lock1active
     [expire1] (x1=232 | x1=233 | x1=234 | x1=235) & x1!=1232 & x1!=2232
         -> (x1'=0)&(f1'=0)&(b1'=0)&(m1'=0);
 
-    [expire2] x1=21 -> (x1'=0);
+    //[expire2] x1=21 -> (x1'=0);
     //[expire2] x1!=21 -> true;
 
 endmodule
+
+module lock4active = lock1active [
+    x1 = x4, f1 = f4, b1 = b4, m1 = m4,
+    sndReq12 = sndReq43, sndReq13 = sndReq45,
+    deliverGranted21 = deliverGranted34, deliverGranted31 = deliverGranted54,
+    sndGranted12 = sndGranted43, sndGranted13 = sndGranted45,
+    expire1 = expire4]
+endmodule
+
+
 
 module lock2passive
 
@@ -51,8 +61,28 @@ module lock2passive
 
 endmodule
 
-module lock3passive = lock2passive [
-    x2 = x3, c2 = c3, deliverReq12 = deliverReq13, sndGranted21 = sndGranted31]
+module lock3passive
+
+    x3 : [0..9999] init 0;
+
+    [deliverReq13] x3=0 -> (x3'=111);
+    [sndGranted31] x3=111 -> (x3'=11);
+
+    [deliverReq43] x3=0 -> (x3'=141);
+    [sndGranted34] x3=141 -> (x3'=41);
+
+    [expire1] x3=11 -> (x3'=0);
+    [expire1] x3!=11 & x3!=111 & x3!=141 -> true;
+
+    [expire4] x3=41 -> (x3'=0);
+    [expire4] x3!=41 & x3!=111 & x3!=141 -> true;
+
+endmodule
+
+module lock5passive = lock2passive [
+    x2 = x5, c2 = c5,
+    deliverReq12 = deliverReq45, sndGranted21 = sndGranted54,
+    expire1 = expire4]
 endmodule
 
 module channel12
@@ -68,13 +98,28 @@ module channel13 =
                sndReq12 = sndReq13, deliverReq12 = deliverReq13]
 endmodule
 
+module channel43 =
+    channel12 [c12 = c43,
+               sndReq12 = sndReq43, deliverReq12 = deliverReq43]
+endmodule
+
+module channel45 =
+    channel12 [c12 = c45,
+               sndReq12 = sndReq45, deliverReq12 = deliverReq45]
+endmodule
+
 module channel21
     c21 : [0..9] init 0;
-    [sndGranted12] c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
-    [deliverGranted12] c21=1 -> (c21'=0);
+    [sndGranted21] c21=0 -> 0.999:(c21'=1) + 0.001:(c21'=0);
+    [deliverGranted21] c21=1 -> (c21'=0);
 endmodule
 
 module channel31 =
     channel21 [c21 = c31,
                sndGranted21 = sndGranted31, deliverGranted21 = deliverGranted31]
+endmodule
+
+module channel34 =
+    channel21 [c21 = c34,
+               sndGranted21 = sndGranted34, deliverGranted21 = deliverGranted34]
 endmodule
