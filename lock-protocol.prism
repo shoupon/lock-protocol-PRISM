@@ -15,6 +15,13 @@
 //   v ^ v
 // 2   3   5
 //
+// scenario D:
+//   1   4
+//   v ^ v
+// 2   3   5
+//   ^
+//   6
+//
 
 mdp
 
@@ -25,8 +32,14 @@ module lock2passive
     [deliverReq12] x2=0 -> (x2'=111);
     [sndGranted21] x2=111 -> (x2'=11);
 
+    [deliverReq62] x2=0 -> (x2'=161);
+    [sndGranted26] x2=111 -> (x2'=61);
+
     [expire1] x2=11 -> (x2'=0);
-    [expire1] x2!=11 & x2!=111 -> true;
+    [expire1] x2!=11 & x2!=111 & x2!=161 -> true;
+
+    [expire6] x2=61 -> (x2'=0);
+    [expire6] x2!=61 & x2!=111 & x2!=161 -> true;
 
 endmodule
 
@@ -84,10 +97,14 @@ module lock4mixed = lock3mixed [
     expire3 = expire4, expire1 = expire3, expire4 = expire3]
 endmodule
 
-module lock5passive = lock2passive [
-    x2 = x5, c2 = c5,
-    deliverReq12 = deliverReq45, sndGranted21 = sndGranted54,
-    expire1 = expire4]
+module lock5passive
+    x5 : [0..9999] init 0;
+
+    [deliverReq45] x5=0 -> (x5'=111);
+    [sndGranted54] x5=111 -> (x5'=11);
+
+    [expire4] x5=11 -> (x5'=0);
+    [expire4] x5!=11 & x5!=111 -> true;
 endmodule
 
 module channel12
