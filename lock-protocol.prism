@@ -33,7 +33,7 @@ module lock2passive
     [sndGranted21] x2=111 -> (x2'=11);
 
     [deliverReq62] x2=0 -> (x2'=161);
-    [sndGranted26] x2=111 -> (x2'=61);
+    [sndGranted26] x2=161 -> (x2'=61);
 
     [expire1] x2=11 -> (x2'=0);
     [expire1] x2!=11 & x2!=111 & x2!=161 -> true;
@@ -66,14 +66,20 @@ module lock3mixed
     [deliverReq43] x3=0 -> (x3'=141);
     [sndGranted34] x3=141 -> (x3'=41);
 
+    [deliverReq63] x3=0 -> (x3'=161);
+    [sndGranted36] x3=161 -> (x3'=61);
+
     [expire3] (x3=142 | x3=143 | x3=144 | x3=145) & x3!=1142 & x3!=2142
         -> (x3'=0)&(f3'=0)&(b3'=0)&(m3'=0);
 
     [expire1] x3=11 -> (x3'=0);
-    [expire1] x3!=11 & x3!=111 & x3!=141 -> true;
+    [expire1] x3!=11 & x3!=111 & x3!=141 & x3!=161 -> true;
 
     [expire4] x3=41 -> (x3'=0);
-    [expire4] x3!=41 & x3!=111 & x3!=141 -> true;
+    [expire4] x3!=41 & x3!=111 & x3!=141 & x3!=161 -> true;
+
+    [expire6] x3=61 -> (x3'=0);
+    [expire6] x3!=61 & x3!=111 & x3!=141 & x3!=161 -> true;
 
 endmodule
 
@@ -107,6 +113,28 @@ module lock5passive
     [expire4] x5!=11 & x5!=111 -> true;
 endmodule
 
+module lock6active
+
+    x6 : [0..9999] init 0;
+    f6 : [0..9] init 0;
+    b6 : [0..9] init 0;
+    m6 : [0..9] init 0;
+
+    [set6] x6=0 -> (x6'=1232);
+    [sndReq62] x6=1232 -> (x6'=2232);
+    [sndReq63] x6=2232 -> (x6'=232);
+
+    [deliverGranted26] x6=232 -> (x6'=233);
+    [deliverGranted36] x6=232 -> (x6'=234);
+
+    [deliverGranted36] x6=233 -> (x6'=235);
+    [deliverGranted26] x6=234 -> (x6'=235);
+
+    [expire6] (x6=232 | x6=233 | x6=234 | x6=235) & x6!=1232 & x6!=2232
+        -> (x6'=0)&(f6'=0)&(b6'=0)&(m6'=0);
+
+endmodule
+
 module channel12
 
     c12 : [0..9] init 0;
@@ -117,6 +145,7 @@ module channel12
     [expire1] c12=2 -> (c12'=0);
     [expire1] c12!=2 -> true;
 endmodule
+
 
 module channel13
     c13 : [0..9] init 0;
@@ -156,6 +185,12 @@ module channel21
     [expire1] c21!=1 -> true;
 endmodule
 
+module channel26 =
+    channel21 [c21 = c26,
+               sndGranted21 = sndGranted26, deliverGranted21 = deliverGranted26,
+               expire1 = expire6]
+endmodule
+
 module channel31 =
     channel13 [c13 = c31,
                sndReq13 = sndReq31, deliverReq13 = deliverReq31,
@@ -172,10 +207,28 @@ module channel34 =
                expire3 = expire4]
 endmodule
 
+module channel36 =
+    channel21 [c21 = c36,
+               sndGranted21 = sndGranted36, deliverGranted21 = deliverGranted36,
+               expire1 = expire6]
+endmodule
+
 module channel54 =
     channel21 [c21 = c54,
                sndGranted21 = sndGranted54, deliverGranted21 = deliverGranted54,
                expire1 = expire4]
+endmodule
+
+module channel62 =
+    channel12 [c12 = c62,
+               sndReq12 = sndReq62, deliverReq12 = deliverReq62,
+               expire1 = expire6]
+endmodule
+
+module channel63 =
+    channel12 [c12 = c63,
+               sndReq12 = sndReq63, deliverReq12 = deliverReq63,
+               expire1 = expire6]
 endmodule
 
 module timing
@@ -185,22 +238,32 @@ module timing
     [set1] t=0 -> (t'=1);
     [set3] t=0 -> (t'=3);
     [set4] t=0 -> (t'=4);
+    [set6] t=0 -> (t'=6);
 
     [set1] t>0 & t<=999 -> (t'=(t*10)+1);
     [set3] t>0 & t<=999 -> (t'=(t*10)+3);
     [set4] t>0 & t<=999 -> (t'=(t*10)+4);
+    [set6] t>0 & t<=999 -> (t'=(t*10)+6);
 
+    [expire1] t>=1000 & t<2000 -> (t'=t-1000);
     [expire1] t>=100 & t<200 -> (t'=t-100);
     [expire1] t>=10 & t<20 -> (t'=t-10);
     [expire1] t=1 -> (t'=0);
 
+    [expire3] t>=3000 & t<4000 -> (t'=t-3000);
     [expire3] t>=300 & t<400 -> (t'=t-300);
     [expire3] t>=30 & t<40 -> (t'=t-30);
     [expire3] t=3 -> (t'=0);
 
+    [expire4] t>=4000 & t<5000 -> (t'=t-4000);
     [expire4] t>=400 & t<500 -> (t'=t-400);
     [expire4] t>=40 & t<50 -> (t'=t-40);
     [expire4] t=4 -> (t'=0);
+
+    [expire6] t>=6000 & t<7000 -> (t'=t-6000);
+    [expire6] t>=600 & t<700 -> (t'=t-600);
+    [expire6] t>=60 & t<70 -> (t'=t-60);
+    [expire6] t=6 -> (t'=0);
 
     [expire2] t=9999 -> true;
     [expire5] t=9999 -> true;
