@@ -109,7 +109,8 @@ module lock1mixed = lock3mixed [
     deliverGranted13 = deliverGranted21, deliverGranted43 = deliverGranted31,
     deliverReq13 = deliverReq31, sndGranted31 = sndGranted13,
     deliverReq43 = deliverReq31, sndGranted34 = sndGranted13,
-    expire3 = expire1, expire1 = expire3, expire4 = expire3]
+    deliverReq63 = deliverReq31, sndGranted36 = sndGranted13,
+    expire3 = expire1, expire1 = expire3, expire4 = expire3, expire6 = expire3]
 endmodule
 
 module lock4mixed = lock3mixed [
@@ -119,7 +120,8 @@ module lock4mixed = lock3mixed [
     deliverGranted13 = deliverGranted34, deliverGranted43 = deliverGranted54,
     deliverReq13 = deliverReq34, sndGranted31 = sndGranted43,
     deliverReq43 = deliverReq34, sndGranted34 = sndGranted43,
-    expire3 = expire4, expire1 = expire3, expire4 = expire3]
+    deliverReq63 = deliverReq34, sndGranted36 = sndGranted43,
+    expire3 = expire4, expire1 = expire3, expire4 = expire3, expire6 = expire3]
 endmodule
 
 module lock5passive
