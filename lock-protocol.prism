@@ -224,9 +224,10 @@ module channel34 =
 endmodule
 
 module channel36 =
-    channel21 [c21 = c36,
-               sndGranted21 = sndGranted36, deliverGranted21 = deliverGranted36,
-               expire1 = expire6]
+    channel13 [c13 = c36,
+               sndReq13 = sndReq36, deliverReq13 = deliverReq36,
+               sndGranted13 = sndGranted36, deliverGranted13 = deliverGranted36,
+               expire1 = expire3, expire3 = expire6]
 endmodule
 
 module channel37 = channel12
@@ -248,13 +249,14 @@ module channel62 =
 endmodule
 
 module channel63 =
-    channel12 [c12 = c63,
-               sndReq12 = sndReq63, deliverReq12 = deliverReq63,
+    channel13 [c13 = c63,
+               sndReq13 = sndReq63, deliverReq13 = deliverReq63,
+               sndGranted13 = sndGranted63, deliverGranted13 = deliverGranted63,
                expire1 = expire6]
 endmodule
 
 module channel73 =
-    channel21 [c21 = c73,
+    channel31 [c31 = c73,
                sndGranted21 = sndGranted73, deliverGranted21 = deliverGranted73,
                expire1 = expire3]
 endmodule
