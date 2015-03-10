@@ -22,6 +22,13 @@
 //   ^
 //   6
 //
+// scenario E:
+//   1   4
+//   v ^ v
+// 2   3   5
+//   ^ v 
+//   6   7
+//
 
 mdp
 
@@ -60,6 +67,16 @@ module lock3mixed
     [deliverGranted43] x3=143 -> (x3'=145);
     [deliverGranted13] x3=144 -> (x3'=145);
 
+    [set3] x3=0 -> (x3'=1672);
+    [sndReq36] x3=1672 -> (x3'=2672);
+    [sndReq37] x3=2672 -> (x3'=672);
+
+    [deliverGranted36] x3=672 -> (x3'=673);
+    [deliverGranted37] x3=672 -> (x3'=674);
+
+    [deliverGranted37] x3=673 -> (x3'=675);
+    [deliverGranted36] x3=674 -> (x3'=675);
+
     [deliverReq13] x3=0 -> (x3'=111);
     [sndGranted31] x3=111 -> (x3'=11);
 
@@ -70,6 +87,8 @@ module lock3mixed
     [sndGranted36] x3=161 -> (x3'=61);
 
     [expire3] (x3=142 | x3=143 | x3=144 | x3=145) & x3!=1142 & x3!=2142
+        -> (x3'=0)&(f3'=0)&(b3'=0)&(m3'=0);
+    [expire3] (x3=672 | x3=673 | x3=674 | x3=675) & x3!=1672 & x3!=2672
         -> (x3'=0)&(f3'=0)&(b3'=0)&(m3'=0);
 
     [expire1] x3=11 -> (x3'=0);
@@ -113,26 +132,21 @@ module lock5passive
     [expire4] x5!=11 & x5!=111 -> true;
 endmodule
 
-module lock6active
+module lock6mixed = lock3mixed [
+    x3 = x6, f3 = f6, b3 = b6, m3 = m6,
+    set3 = set6,
+    sndReq31 = sndReq62, sndReq34 = sndReq63,
+    deliverGranted13 = deliverGranted26, deliverGranted43 = deliverGranted36,
+    deliverReq13 = deliverReq36, sndGranted31 = sndGranted63,
+    deliverReq43 = deliverReq36, sndGranted34 = sndGranted63,
+    deliverReq63 = deliverReq36, sndGranted36 = sndGranted63,
+    expire3 = expire6, expire1 = expire3, expire4 = expire3, expire6 = expire3]
+endmodule
 
-    x6 : [0..9999] init 0;
-    f6 : [0..9] init 0;
-    b6 : [0..9] init 0;
-    m6 : [0..9] init 0;
-
-    [set6] x6=0 -> (x6'=1232);
-    [sndReq62] x6=1232 -> (x6'=2232);
-    [sndReq63] x6=2232 -> (x6'=232);
-
-    [deliverGranted26] x6=232 -> (x6'=233);
-    [deliverGranted36] x6=232 -> (x6'=234);
-
-    [deliverGranted36] x6=233 -> (x6'=235);
-    [deliverGranted26] x6=234 -> (x6'=235);
-
-    [expire6] (x6=232 | x6=233 | x6=234 | x6=235) & x6!=1232 & x6!=2232
-        -> (x6'=0)&(f6'=0)&(b6'=0)&(m6'=0);
-
+module lock7passive = lock5passive
+    [x5 = x7,
+     deliverReq45 = deliverReq37, sndGranted54 = sndGranted73,
+     expire4 = expire3]
 endmodule
 
 module channel12
@@ -213,6 +227,12 @@ module channel36 =
                expire1 = expire6]
 endmodule
 
+module channel37 = channel12
+    [c12 = c37,
+     sndReq12 = sndReq37, deliverReq12 = deliverReq37,
+     expire1 = expire3]
+endmodule
+
 module channel54 =
     channel21 [c21 = c54,
                sndGranted21 = sndGranted54, deliverGranted21 = deliverGranted54,
@@ -230,6 +250,13 @@ module channel63 =
                sndReq12 = sndReq63, deliverReq12 = deliverReq63,
                expire1 = expire6]
 endmodule
+
+module channel73 =
+    channel21 [c21 = c73,
+               sndGranted21 = sndGranted73, deliverGranted21 = deliverGranted73,
+               expire1 = expire3]
+endmodule
+
 
 module timing
 
