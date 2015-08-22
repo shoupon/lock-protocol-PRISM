@@ -8,6 +8,8 @@ label "lock3locked" = x3=145 & (x1=41 | x1=11 | x1=61) & (x4=41 | x4=11 | x4=61)
 label "lock4locked" = x4=145 & x3=41 & x5=11;
 label "lock6locked" = x6=235 & x2=61 & x3=61;
 
+E [F "deadlock"]
+
 Pmax=? [ F "lock1error" ]
 Pmax=? [ F "lock3error" ]
 Pmax=? [ F "lock4error" ]
@@ -23,4 +25,3 @@ E [F "lock3locked" ]
 E [F "lock4locked" ]
 E [F "lock6locked" ]
 
-E[F "deadlock"]
