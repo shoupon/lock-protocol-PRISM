@@ -4,11 +4,18 @@ label "lock4error" = !(x4=145 => (x3=41 & x5=11));
 label "lock6error" = !(x6=235 => (x2=61 & x3=61));
 
 label "lock1locked" = x1=145 & x2=11 & x3=11;
-label "lock3locked" = x3=145 & (x1=41 | x1=11 | x1=61) & (x4=41 | x4=11 | x4=61);
+label "lock3lockedA" = x3=145 & x1=11 & x4=11;
+label "lock3lockedB" = x3=675 & x6=11 & x7=11;
 label "lock4locked" = x4=145 & x3=41 & x5=11;
-label "lock6locked" = x6=235 & x2=61 & x3=61;
+label "lock6locked" = x6=145 & x2=61 & x3=61;
 
 E [F "deadlock"]
+
+E [F "lock1locked" ]
+E [F "lock3lockedA" ]
+E [F "lock3lockedB" ]
+E [F "lock4locked" ]
+E [F "lock6locked" ]
 
 Pmax=? [ F "lock1error" ]
 Pmax=? [ F "lock3error" ]
@@ -16,12 +23,7 @@ Pmax=? [ F "lock4error" ]
 Pmax=? [ F "lock6error" ]
 
 Pmax=? [ F "lock1locked" ]
-Pmax=? [ F "lock3locked" ]
+Pmax=? [ F "lock3lockedA" ]
+Pmax=? [ F "lock3lockedB" ]
 Pmax=? [ F "lock4locked" ]
 Pmax=? [ F "lock6locked" ]
-
-E [F "lock1locked" ]
-E [F "lock3locked" ]
-E [F "lock4locked" ]
-E [F "lock6locked" ]
-
